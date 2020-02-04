@@ -38,6 +38,11 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
+import software.amazon.awssdk.services.cloudwatchevents.CloudWatchEventsClient;
+import software.amazon.awssdk.services.cloudwatchevents.model.PutEventsRequest;
+import software.amazon.awssdk.services.cloudwatchevents.model.PutEventsRequestEntry;
+import software.amazon.awssdk.services.cloudwatchevents.model.PutEventsResponse;
+
 /**
  * This sample demonstrates how to make basic requests to Amazon S3 using
  * the AWS SDK for Java.
@@ -72,6 +77,25 @@ public class S3Sample {
         System.out.println("===========================================");
         System.out.println("Getting Started with Amazon S3");
         System.out.println("===========================================\n");
+
+        CloudWatchEventsClient cwe =
+                CloudWatchEventsClient.builder().build();
+
+        final String EVENT_DETAILS =
+            "{ \"key1\": \"value1\", \"key2\": \"value2\" }";
+
+        for (int i = 0 ; i < 10 ; i++){
+            PutEventsRequestEntry request_entry = PutEventsRequestEntry.builder()
+                .detail(EVENT_DETAILS)
+                .detailType("sampleSubmitted")
+                .resources(resource_arn)
+                .source("aws-sdk-java-cloudwatch-example").build();
+
+            PutEventsRequest request = PutEventsRequest.builder()
+                .entries(request_entry).build();
+
+            PutEventsResponse response = cwe.putEvents(request);            
+        }
 
         try {
             /*
